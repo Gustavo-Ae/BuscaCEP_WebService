@@ -7,6 +7,8 @@ package view;
 
 
 import Atxy2k.CustomTextField.RestrictedTextField;
+import java.awt.Toolkit;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -20,6 +22,7 @@ public class TelaBuscaCEP extends javax.swing.JFrame {
     public TelaBuscaCEP(){
         initComponents();
         validacaoCEP();   
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/imagens/home.png")));
     }
     
     public void validacaoCEP(){ /*Vamos utilizar a biblioteca atxy2k para validar o campo CEP */
@@ -52,7 +55,7 @@ public class TelaBuscaCEP extends javax.swing.JFrame {
         jLabel_imagem = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Buscar CEP");
+        setTitle(" Buscar CEP");
         setResizable(false);
 
         jLabel1.setText("CEP");
@@ -70,6 +73,11 @@ public class TelaBuscaCEP extends javax.swing.JFrame {
         jButton_limpar.setText("Limpar");
 
         jButton_buscar.setText("Buscar");
+        jButton_buscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton_buscarActionPerformed(evt);
+            }
+        });
 
         jLabel_imagem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/localizacao.png"))); // NOI18N
 
@@ -148,6 +156,17 @@ public class TelaBuscaCEP extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_buscarActionPerformed
+
+        if(jTextField_cep.getText().equals("")){
+            JOptionPane.showMessageDialog(this, "Informe o CEP");
+            jTextField_cep.requestFocus();
+        }else{
+            //buscar cep
+        }
+
+    }//GEN-LAST:event_jButton_buscarActionPerformed
 
     /**
      * @param args the command line arguments

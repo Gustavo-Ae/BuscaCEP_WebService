@@ -1,19 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package view;
 
 
 import Atxy2k.CustomTextField.RestrictedTextField;
 import java.awt.Toolkit;
+import java.net.URL;
+import java.util.Iterator;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author Josiene
- */
+
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+
+
 public class TelaBuscaCEP extends javax.swing.JFrame {
 
     /**
@@ -31,6 +30,60 @@ public class TelaBuscaCEP extends javax.swing.JFrame {
         validarCEP.setLimit(8);
     }
 
+    private void buscarCEP(){
+        String logradouro = "";
+        String tipoLogradouro = "";
+        String resultado = null;
+        String cep = jTextField_cep.getText();
+ 
+        try {
+            URL url = new URL("http://cep.republicavirtual.com.br/web_cep.php?cep="+cep+"&formato=xml");
+            SAXReader xml = new SAXReader();
+            Document documento = xml.read(url);
+            Element root = documento.getRootElement();
+            
+            for(Iterator<Element> it = root.elementIterator(); it.hasNext();) {
+                Element element = it.next();
+                
+                if(element.getQualifiedName().equals("tipo_logradouro")){
+                    tipoLogradouro = element.getText();
+                }
+                if(element.getQualifiedName().equals("logradouro")){
+                    logradouro = element.getText();
+                }
+                if(element.getQualifiedName().equals("cidade")){
+                    jTextField_cidade.setText(element.getText());
+                }
+                if(element.getQualifiedName().equals("bairro")){
+                    jTextField_bairro.setText(element.getText());
+                }
+                if(element.getQualifiedName().equals("uf")){
+                    jComboBox_uf.setSelectedItem(element.getText());
+                }
+                if(element.getQualifiedName().equals("resultado")){
+                    resultado = element.getText();
+                    
+                    if(resultado.equals("1")){
+                        jLabel_status.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/check.png")));
+                    }else{
+                        jLabel_status.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/close.png")));
+                        jTextField_endereco.setText("");
+                        jTextField_bairro.setText("");
+                        jTextField_cidade.setText("");
+                        jComboBox_uf.setSelectedItem(null);
+                        jTextField_cep.requestFocus();
+                    }
+                }
+                
+            }
+            jTextField_endereco.setText(tipoLogradouro+" "+logradouro);
+           
+        } catch (Exception e){
+            System.out.println("erro quando vai buscar o CEP");
+        }
+              
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -53,6 +106,7 @@ public class TelaBuscaCEP extends javax.swing.JFrame {
         jButton_limpar = new javax.swing.JButton();
         jButton_buscar = new javax.swing.JButton();
         jLabel_imagem = new javax.swing.JLabel();
+        jLabel_status = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle(" Buscar CEP");
@@ -62,15 +116,26 @@ public class TelaBuscaCEP extends javax.swing.JFrame {
 
         jLabel2.setText("Endereço ");
 
+        jTextField_endereco.setEditable(false);
+
         jLabel3.setText("Bairro");
 
+        jTextField_bairro.setEditable(false);
+
         jLabel4.setText("Cidade");
+
+        jTextField_cidade.setEditable(false);
 
         jLabel5.setText("UF");
 
         jComboBox_uf.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO" }));
 
         jButton_limpar.setText("Limpar");
+        jButton_limpar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton_limparActionPerformed(evt);
+            }
+        });
 
         jButton_buscar.setText("Buscar");
         jButton_buscar.addActionListener(new java.awt.event.ActionListener() {
@@ -110,14 +175,16 @@ public class TelaBuscaCEP extends javax.swing.JFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jTextField_endereco)
                                     .addComponent(jTextField_bairro, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap(116, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jTextField_cep, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(50, 50, 50)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel_status)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButton_buscar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel_imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(19, 19, 19))))
         );
@@ -130,7 +197,8 @@ public class TelaBuscaCEP extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1)
                             .addComponent(jTextField_cep, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton_buscar)))
+                            .addComponent(jButton_buscar)
+                            .addComponent(jLabel_status)))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel_imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -163,10 +231,22 @@ public class TelaBuscaCEP extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Informe o CEP");
             jTextField_cep.requestFocus();
         }else{
-            //buscar cep
+            buscarCEP();
         }
 
     }//GEN-LAST:event_jButton_buscarActionPerformed
+
+    
+    private void jButton_limparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_limparActionPerformed
+        jTextField_cep.setText("");
+        jTextField_endereco.setText("");
+        jTextField_bairro.setText("");
+        jTextField_cidade.setText("");
+        jComboBox_uf.setSelectedItem(null);
+        jTextField_cep.requestFocus();
+        jLabel_status.setIcon(null);
+
+    }//GEN-LAST:event_jButton_limparActionPerformed
 
     /**
      * @param args the command line arguments
@@ -213,6 +293,7 @@ public class TelaBuscaCEP extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel_imagem;
+    private javax.swing.JLabel jLabel_status;
     private javax.swing.JTextField jTextField_bairro;
     private javax.swing.JTextField jTextField_cep;
     private javax.swing.JTextField jTextField_cidade;
